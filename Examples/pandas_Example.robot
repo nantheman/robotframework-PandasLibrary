@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   This robot file is for the verification of the Pandas Library
-Library    ${CURDIR}${/}..${/}PandasLibrary.py
+Library    PandasLibrary
 Suite Setup    Set Index   data.csv  id   csv
 
 
@@ -62,3 +62,26 @@ Test row index
     ${column_val}=   Set Variable    Morris
     @{data}=   Get Row Index   ${column_name}  ${column_val}
     Log to Console      Available data is @{data}[0]
+	
+Test read all content and header
+    [Documentation]   Test to read all content and header
+    Log To Console    Reading all content and header
+    ${data}   ${hdr}   Read all content and header
+    Log to Console      ${hdr}
+    Log to Console      ${data}
+
+Test Multiple data frame functions
+    Log to Console   Start Test
+    ${row}=   Set Variable  3
+    ${row}=   Convert To Integer    ${row}
+    ${rowd}=  Read row by index    ${row}
+    Log to Console   ${rowd}
+	Log to Console   Update last_name to Moreno
+    ${colname}=  Set Variable  last_name
+    ${return_data}=  Add or Update Column  ${rowd}  ${colname}  Moreno
+    Log to Console   Returned value is ${return_data}
+	Log to Console   Add column location as 3rd Column
+    ${colname}=  Set Variable  location
+    ${colloc}=   Convert To Integer    2
+    ${return_data}=  Add or Update Column  ${rowd}  ${colname}  Tokyo  ${colloc}
+    Log to Console   Returned value is ${return_data}
