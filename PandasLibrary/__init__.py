@@ -90,7 +90,7 @@ class PandasLibrary(object):
 
         :param filename:  CSV fileName
         :return available_data: Return the data present in all the rows and columns from the file
-		                        and a list of column names
+                                and a list of column names
         '''
         if self.file_type == 'xls':
             data_frame = pd.read_excel(self.filename, index_col=self.index_name)
@@ -206,7 +206,7 @@ class PandasLibrary(object):
         This get_message keyword "write_to_csv" which will append the dataframe into the csv file.
         :param data_frame: data frame with curated output
         :param filename:   Output file name
-		:writeheader:      Useful when doing incremental writes. 
+        :writeheader:      Useful when doing incremental writes. 
 
         '''
         # check the file status
@@ -225,7 +225,7 @@ class PandasLibrary(object):
         :param column_name:  Column name
         :param column_new_value: Column value
         :column_position: Leave blank for last column (append) else column is inserted within frame
-		:return amended data row
+        :return amended data row
         '''
         if not column_position:
             data_row[column_name] = column_new_value
@@ -266,7 +266,7 @@ class PandasLibrary(object):
         Keyword "get_index_value" returns the index value
         :param filename:  CSV fileName
         :param data_row: Row as data frame
-		:return Row index
+        :return Row index
         '''
         return data_row.index
     
@@ -275,7 +275,7 @@ class PandasLibrary(object):
         Keyword "get_index_as_list" returns the index column as a list which can be used 
         through the rows
         :param filename:  CSV fileName
-		:return index values as list 
+        :return index values as list 
 
         '''
         if self.file_type == 'xls':
@@ -285,39 +285,21 @@ class PandasLibrary(object):
         else:
             return  "Please set index with filename and file type"
         return data_frame.index.tolist()
-    
-    def get_column_values_as_list(self, column_name, column_value):
-        '''
-        Keyword "get_column_values_as_list" returns list of column values where column_name matches a column_value
-        :param filename:  CSV fileName
-        :param column_name:  Column name
-        :param column_value: Column value
-		:return column values as list
-
-        '''
-        if self.file_type == 'xls':
-            data_frame = pd.read_excel(self.filename, index_col=self.index_name)
-        elif self.file_type == 'csv':
-            data_frame = pd.read_csv(self.filename, index_col=self.index_name)
-        else:
-            return  "Please set index with filename and file type"
-
-        return data_frame.index[data_frame[column_name] == column_value].tolist()
-
+		
     def add_to_dataframe(self, data_frame, data_row):
         '''
         Keyword "add_to_dataframe" builds a cumulative dataframe 
-		        (adds row to an existing data frame or builds a new one)
+                (adds row to an existing data frame or builds a new one)
         :param filename:  CSV fileName
         :param data_frame: Data frame that was already built
         :param data_row: Data row (structure must match Data frame)
-		:return: Cumulative data frame
+        :return: Cumulative data frame
         '''
         try:
             return data_frame.append(data_row)
         except:
             return data_row
-			
+        	
     def get_row_index(self, column_name, column_value):
         if self.file_type == 'xls':
             data_frame = pd.read_excel(self.filename, index_col=self.index_name)
@@ -328,29 +310,67 @@ class PandasLibrary(object):
 
         available_data = data_frame.index[data_frame[column_name] == column_value].tolist()
         return available_data
+
+    def _test():        
+        print("Test pandas functions for csv/xls file read/update for use with robotframework")
+        command = PandasLibrary()
+        filename = 'data.csv'
+        command.set_index(file_name="data.csv", index_name='id', file_type='csv')
+        print("Reading all the contents:- ")
+        print(command.read_all_content())
+        print("Reading all the rows:-  ")
+        print(command.read_all_rows('first_name'))
+        print("Reading all the columns:-  ")
+        print(command.read_all_columns(1))
+        print("Reading particular row and columns:-  ")
+        print(command.read_row_and_column(1, 'gender'))
+        print("Reading CSV size")
+        print(command.get_row_and_column_size())
+        print("Reading CSV head data")
+        print(command.read_head_data(10))
+        print("Reading CSV tail data")
+        print(command.read_tail_data(10))
+        testcase_id= 1
+        status='Fail'
+        testinfo='test failed'
+        command.upload_to_csv(testcase_id, status, testinfo)
 		
+        print("get_index_as_list " + str(command.get_index_as_list()))
+        print("get the row index " + str(command.get_row_index('last_name', 'Morris')))
+        print("read row by index (index=3)")
+        tdf = command.read_row_by_index(3)
+        print(tdf)
+        print("add or update column - Update column value")
+        print(command.add_or_update_column(tdf,'last_name','Moreno'))
+        print("add or update column - Add column 'location' as 3rd column")
+        print(command.add_or_update_column(tdf,'location','Tokyo',2))
+        print("add_to_dataframe - df1 + df2")
+        tdf3 = pd.DataFrame()
+        print("add_to_dataframe - df1")
+        tdf1 = command.read_row_by_index(1)
+        print("add_to_dataframe - df2")
+        tdf2 = command.read_row_by_index(2)
+        tdf3 = command.add_to_dataframe(tdf3,tdf1)
+        print("df1 + df2")
+        print(command.add_to_dataframe(tdf3,tdf2))
+
+        print("Modify data frame information and write to csv")
+        tdf3 = pd.DataFrame()
+        tdf = command.read_row_by_index(3)
+        print(tdf)
+        print("add or update column - Update column value")
+        print(command.add_or_update_column(tdf,'last_name','Moreno'))
+        print("add or update column - Add column 'location' as 3rd column")
+        print(command.add_or_update_column(tdf,'location','Tokyo',2))
+        tdf3 = command.add_to_dataframe(tdf3,tdf)
+        tdf = command.read_row_by_index(2)
+        print(tdf)
+        print("add or update column - Add column 'location' as 3rd column")
+        print(command.add_or_update_column(tdf,'location','Sao Paulo',2))
+        tdf3 = command.add_to_dataframe(tdf3,tdf)
+        print(tdf3)
+        command.write_to_csv(tdf3, "test_cumreport.csv", writeheader=True)
+
 if __name__ == '__main__':
-    print("Test the pandas functions for robotframework to use a csv file")
-    command = PandasLibrary()
-    filename = 'data.csv'
-    command.set_index(file_name="data.csv", index_name='id', file_type='csv')
-    print("Reading all the contents:- ")
-    print(command.read_all_content())
-    print("Reading all the rows:-  ")
-    print(command.read_all_rows('first_name'))
-    print("Reading all the columns:-  ")
-    print(command.read_all_columns(1))
-    print("Reading particular row and columns:-  ")
-    print(command.read_row_and_column(1, 'gender'))
-    print("Reading CSV size")
-    print(command.get_row_and_column_size())
-    print("Reading CSV head data")
-    print(command.read_head_data(10))
-    print("Reading CSV tail data")
-    print(command.read_tail_data(10))
-    testcase_id= 1
-    status='Fail'
-    testinfo='test failed'
-    command.upload_to_csv(testcase_id, status, testinfo)
-    print("get the row index")
-    print(command.get_row_index('last_name', 'Morris'))
+    print(__main__)
+    _test()
